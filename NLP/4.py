@@ -1,24 +1,34 @@
-import re
 import nltk
-nltk.download('punkt')
-nltk.download('punkt_tab')
-from nltk.tokenize import sent_tokenize, word_tokenize
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+from nltk.stem import PorterStemmer
+from nltk.stem import LancasterStemmer
+from nltk.stem import SnowballStemmer
+from nltk.stem import WordNetLemmatizer
 
-text = input("Enter text: ")
+text = "Studies studying happily relational relationally running runners easily"
+words = text.lower().split()
 
-print("\n--- Sentence Segmentation ---")
-print("Using NLTK:")
-for i, s in enumerate(sent_tokenize(text), 1):
-    print(i, s)
+porter = PorterStemmer()
+lancaster = LancasterStemmer()
+snowball = SnowballStemmer("english")
+lemmatizer = WordNetLemmatizer()
 
-print("\nUsing re:")
-sentences = re.split(r'(?<=[.!?])\s+', text.strip())
-for i, s in enumerate(sentences, 1):
-    print(i, s)
+print("Original Words:")
+print(words)
 
-print("\n--- Word Segmentation ---")
-print("Using re:")
-print(re.findall(r'\b\w+\b', text))
+print("\nPorter Stemmer:")
+for word in words:
+    print(word, "->", porter.stem(word))
 
-print("\nUsing NLTK:")
-print(word_tokenize(text))
+print("\nLancaster Stemmer:")
+for word in words:
+    print(word, "->", lancaster.stem(word))
+
+print("\nSnowball Stemmer:")
+for word in words:
+    print(word, "->", snowball.stem(word))
+
+print("\nLemmatization:")
+for word in words:
+    print(word, "->", lemmatizer.lemmatize(word, pos='v'))

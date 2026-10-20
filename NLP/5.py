@@ -3,13 +3,10 @@ nltk.download('punkt')
 nltk.download('punkt_tab')
 nltk.download('averaged_perceptron_tagger')
 nltk.download('averaged_perceptron_tagger_eng')
-from nltk.tokenize import word_tokenize
 
-sentence = input("Enter a sentence: ")
+text = input("Enter a sentence: ")
+words = nltk.word_tokenize(text)
+pos_tags = nltk.pos_tag(words)
 
-tokens = word_tokenize(sentence)
-tagged = nltk.pos_tag(tokens)
-
-print("\nWord\t\tPOS Tag")
-for word, tag in tagged:
-    print(f"{word}\t\t{tag}")
+print("POS Tagged Text:")
+print(pos_tags)

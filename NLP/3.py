@@ -4,21 +4,18 @@ nltk.download('punkt')
 nltk.download('punkt_tab')
 from nltk.tokenize import sent_tokenize, word_tokenize
 
-text = input("Enter text: ")
+text = "Natural Language Processing is a part of AI. It helps computers understand human language. NLP is used in chatbots."
+sentences = sent_tokenize(text)
+print("Sentences:")
+for sentence in sentences:
+    print(sentence)
 
-print("\n--- Sentence Segmentation ---")
-print("Using NLTK:")
-for i, s in enumerate(sent_tokenize(text), 1):
-    print(i, s)
+text = "Natural Language Processing is very interesting."
 
-print("\nUsing re:")
-sentences = re.split(r'(?<=[.!?])\s+', text.strip())
-for i, s in enumerate(sentences, 1):
-    print(i, s)
+words_re = re.findall(r'\w+', text)
+print("\nWords using re:")
+print(words_re)
 
-print("\n--- Word Segmentation ---")
-print("Using re:")
-print(re.findall(r'\b\w+\b', text))
-
-print("\nUsing NLTK:")
-print(word_tokenize(text))
+words_nltk = word_tokenize(text)
+print("\nWords using NLTK:")
+print(words_nltk)
