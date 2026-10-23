@@ -1,0 +1,305 @@
+==============================================================================
+ OPERATING SYSTEM (315319) - PRACTICAL COMMANDS
+ Process commands, user communication / IPC commands and system call programs
+==============================================================================
+
+Note: replace 1234 / 3250 with a real PID from your own "ps" output.
+Replace "student" with your username (run: whoami).
+
+
+==============================================================================
+ PART 1: PROCESS RELATED LINUX COMMANDS
+==============================================================================
+
+------------------------------------------------------------------------------
+ 1) top  - real-time view of running processes (press q to quit)
+------------------------------------------------------------------------------
+Syntax: top [option]
+
+top -h              Help
+top -V              Version
+top -b              Batch mode (output can be redirected to a file)
+top -b -n 1         Batch mode, only one iteration
+top -H              Show threads
+top -i              Ignore idle processes
+top -d 2            Refresh every 2 seconds
+top -n 5            Run 5 iterations and exit
+top -p 1234         Monitor a specific process (by PID)
+
+------------------------------------------------------------------------------
+ 2) ps  - process status
+------------------------------------------------------------------------------
+Syntax: ps [options]
+
+ps                  Processes of the current terminal
+ps -f               Full format listing
+ps -u student       Processes of a particular user
+ps -e               All processes on the system
+ps -ef              All processes in full format
+ps -l               Long format (shows PRI and NI columns)
+ps -p 1234          Show one process by PID
+
+ps -f columns:
+  UID   user ID               PID   process ID
+  PPID  parent process ID     C     CPU utilization value
+  STIME start time            TTY   terminal
+  TIME  CPU time consumed     CMD   command used to start the process
+
+------------------------------------------------------------------------------
+ 3) kill  - terminate a process manually
+------------------------------------------------------------------------------
+Syntax: kill [signal] PID
+
+kill 1234               Terminate process 1234
+kill -9 1234            Force terminate (SIGKILL, signal 9)
+kill -15 1234           Graceful terminate (SIGTERM, signal 15)
+kill 120 230 234        Terminate several processes
+ps -p 1234              Verify that the process has stopped
+
+Use kill -9 only when normal termination does not work (the process cannot
+clean up its resources).
+
+------------------------------------------------------------------------------
+ 4) sleep  - pause execution for a specified time
+------------------------------------------------------------------------------
+Syntax: sleep NUMBER[SUFFIX]
+
+sleep 30            Wait for 30 seconds
+sleep 5m            Wait for 5 minutes
+sleep 2h            Wait for 2 hours
+
+------------------------------------------------------------------------------
+ 5) nice  - start a new process with a given nice value (priority)
+------------------------------------------------------------------------------
+Syntax: nice -n NICE_VALUE command
+A higher nice value means a lower scheduling priority.
+
+nice -n 10 sleep 100            Start sleep with nice value 10
+nice -n 10 sleep 100 &          Same, in the background (prints [1] PID)
+ps -l -p 3250                   Check the NI column (should show 10)
+
+------------------------------------------------------------------------------
+ 6) renice  - change the nice value of a running process
+------------------------------------------------------------------------------
+Syntax: renice NICE_VALUE -p PID
+
+renice 5 -p 1234                Change nice value of process 1234 to 5
+
+nice   -> starts a NEW process with a priority
+renice -> changes the priority of a RUNNING process
+
+
+==============================================================================
+ PART 2: USER COMMUNICATION AND IPC COMMANDS
+==============================================================================
+
+------------------------------------------------------------------------------
+ 1) who  - users currently logged in
+------------------------------------------------------------------------------
+Syntax: who [options] [filename]
+
+who                 Show logged in users
+who -a              Detailed / all information
+who -b              Last system boot
+who -d              Dead processes
+who -H              Column headings
+who -l              Login processes
+who -m              Current terminal / user
+who -p              Active processes
+who -q              Logged in users and count
+who -T              Message status
+
+------------------------------------------------------------------------------
+ 2) cat  - create, display and concatenate files
+------------------------------------------------------------------------------
+cat > sample.txt                        Create a file (type text, press Ctrl+D)
+cat sample.txt                          Display file contents
+cat file1.txt file2.txt                 Display multiple files
+cat file1.txt file2.txt > combined.txt  Combine files into a new file
+cat file1.txt >> file2.txt              Append file1 to the end of file2
+
+(file1.txt and file2.txt must exist. Create them with: cat > file1.txt)
+
+------------------------------------------------------------------------------
+ 3) wall  - broadcast a message to all logged in users
+------------------------------------------------------------------------------
+Syntax: wall [options] [message | file]
+
+wall "System will restart soon"
+
+Send a message from a file:
+  Step 1: nano message.txt
+  Step 2: type -> System maintenance will start at 10 PM.
+                  Please save your work.
+  Step 3: save (Ctrl+O, Enter, Ctrl+X) and run:  wall message.txt
+
+------------------------------------------------------------------------------
+ 4) write  - send a message to one logged in user
+------------------------------------------------------------------------------
+Syntax: write username      (get the username using: who)
+
+write student
+Hello                       (type the message)
+Ctrl+D                      (end of input)
+
+------------------------------------------------------------------------------
+ 5) mesg  - allow or block messages to your terminal
+------------------------------------------------------------------------------
+Syntax: mesg [y | n]
+
+mesg                Show current status
+mesg y              Allow messages (others can use write)
+mesg n              Block messages
+
+------------------------------------------------------------------------------
+ 6) ipcs  - inter-process communication resources
+------------------------------------------------------------------------------
+Syntax: ipcs [options]
+
+ipcs                All IPC resources
+ipcs -q             Message queues
+ipcs -m             Shared memory segments
+ipcs -s             Semaphore arrays
+
+Semaphores are used in process synchronization to control access to shared
+resources.
+
+
+==============================================================================
+ PART 3: SYSTEM CALL PROGRAMS (C)
+==============================================================================
+
+How to save, compile and run a C program:
+  Step 1: nano fork.c            (type the program)
+  Step 2: Ctrl+O, Enter, Ctrl+X  (save and exit)
+  Step 3: gcc fork.c -o fork     (compile)
+  Step 4: ./fork                 (run)
+
+Install the compiler once (if gcc is missing):
+  sudo apt update
+  sudo apt install gcc nano -y
+
+------------------------------------------------------------------------------
+ 1) fork()  - creates a child process          File: fork.c
+------------------------------------------------------------------------------
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+    fork();
+    printf("Hello\n");
+    return 0;
+}
+
+Output: Hello is printed twice (parent and child).
+
+------------------------------------------------------------------------------
+ 2) exec()  - replaces the current program      File: exec.c
+------------------------------------------------------------------------------
+#include <unistd.h>
+
+int main()
+{
+    execl("/bin/ls", "ls", "-l", NULL);
+    return 0;
+}
+
+------------------------------------------------------------------------------
+ 3) getpid()  - returns the process ID          File: getpid.c
+------------------------------------------------------------------------------
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+    printf("PID = %d\n", getpid());
+    return 0;
+}
+
+------------------------------------------------------------------------------
+ 4) pipe()  - creates a pipe for IPC            File: pipe.c
+------------------------------------------------------------------------------
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+    int fd[2];
+    pipe(fd);
+    printf("Pipe created successfully\n");
+    return 0;
+}
+
+fd[0] = read end, fd[1] = write end.
+
+------------------------------------------------------------------------------
+ 5) exit()  - terminates the process            File: exit.c
+------------------------------------------------------------------------------
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    printf("Program is running...\n");
+    printf("Program is terminating...\n");
+    exit(0);
+    printf("This line will not execute.\n");
+    return 0;
+}
+
+------------------------------------------------------------------------------
+ 6) open() and 7) close()                       File: open.c
+------------------------------------------------------------------------------
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main()
+{
+    int fd;
+    fd = open("sample.txt", O_CREAT | O_WRONLY, 0644);
+
+    if (fd == -1)
+    {
+        printf("File opening failed.\n");
+        return 1;
+    }
+
+    printf("File opened successfully.\n");
+    printf("File descriptor = %d\n", fd);
+
+    close(fd);
+    printf("File closed successfully.\n");
+    return 0;
+}
+
+0644 = rw-r--r--  (owner 6 = rw-, group 4 = r--, others 4 = r--)
+Permission numbers: 4 = read, 2 = write, 1 = execute, 0 = none
+
+------------------------------------------------------------------------------
+ 8) stat()  - file information                  File: stat.c
+------------------------------------------------------------------------------
+(Run open.c first so that sample.txt exists.)
+
+#include <stdio.h>
+#include <sys/stat.h>
+
+int main()
+{
+    struct stat fileInfo;
+
+    if (stat("sample.txt", &fileInfo) == 0)
+    {
+        printf("File Information:\n");
+        printf("File size: %ld bytes\n", fileInfo.st_size);
+        printf("File permission: %o\n", fileInfo.st_mode & 0777);
+    }
+    else
+    {
+        printf("Unable to get file information.\n");
+    }
+    return 0;
+}
+
+==============================================================================
